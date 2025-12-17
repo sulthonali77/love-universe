@@ -9,18 +9,36 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #050505;
+            background-color: #020617;
             overflow: hidden;
             color: white;
             margin: 0;
         }
 
-        /* --- BACKGROUND LAYER --- */
+        /* --- BACKGROUND & AURORA --- */
         .cosmic-background {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, #1b2735 0%, #050505 100%);
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
             z-index: -20;
+        }
+
+        .aurora-container {
+            position: fixed;
+            bottom: -10%;
+            left: -10%;
+            width: 120%;
+            height: 40%;
+            background: linear-gradient(0deg, rgba(34, 197, 94, 0.1) 0%, rgba(168, 85, 247, 0.1) 50%, transparent 100%);
+            filter: blur(60px);
+            z-index: -15;
+            animation: auroraMove 10s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes auroraMove {
+            0% { transform: skewX(-10deg) scaleY(1); opacity: 0.3; }
+            100% { transform: skewX(10deg) scaleY(1.3); opacity: 0.6; }
         }
 
         .stars-container {
@@ -43,32 +61,35 @@
             50% { opacity: 1; transform: scale(1.3); }
         }
 
+        /* Asteroid / Shooting Star */
+        .asteroid {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: linear-gradient(90deg, white, transparent);
+            opacity: 0;
+            z-index: -8;
+        }
+
+        @keyframes shoot {
+            0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 0; }
+            10% { opacity: 1; }
+            20% { transform: translateX(-600px) translateY(600px) rotate(-45deg); opacity: 0; }
+            100% { opacity: 0; }
+        }
+
         /* --- ORNAMEN BENDA LANGIT --- */
-        .planet {
+        .moon-mini {
             position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #f8fafc, #64748b);
             border-radius: 50%;
-            filter: blur(1px);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
+            top: 8%;
+            right: 8%;
             z-index: -5;
-            animation: float 8s infinite ease-in-out;
-            opacity: 0.4;
-        }
-
-        .moon-ornament {
-            position: absolute;
-            width: 150px;
-            height: 150px;
-            background: radial-gradient(circle at 30% 30%, #f8fafc, #94a3b8);
-            border-radius: 50%;
-            box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
-            top: 10%;
-            right: 5%;
-            z-index: -5;
-            opacity: 0.6;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
+            opacity: 0.3; /* Lebih transparan */
         }
 
         /* --- SCENE CONTROL --- */
@@ -96,7 +117,7 @@
         }
 
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -113,16 +134,18 @@
 
         .btn-cosmic:hover { transform: scale(1.1); box-shadow: 0 0 40px rgba(167, 139, 250, 0.8); }
 
-        /* --- 3D CONSTELLATION CONTAINER --- */
+        /* --- 3D CONSTELLATION --- */
         #photo-canvas-3d {
-            perspective: 1200px;
+            perspective: 1500px;
+            width: 100%;
+            height: 60vh;
             cursor: grab;
+            position: relative;
         }
 
         #constellation-world {
-            position: relative;
-            width: 100%;
-            height: 100%;
+            position: absolute;
+            inset: 0;
             transform-style: preserve-3d;
             transition: transform 0.1s ease-out;
         }
@@ -130,47 +153,52 @@
         .photo-node-3d {
             position: absolute;
             transform-style: preserve-3d;
-            transition: transform 0.3s;
+            left: 50%;
+            top: 50%;
         }
 
         .photo-node-3d img {
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 20px rgba(167, 139, 250, 0.3);
-            backface-visibility: visible;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 25px rgba(167, 139, 250, 0.4);
+            transform: translate(-50%, -50%);
+        }
+
+        .constellation-line {
+            position: absolute;
+            height: 1px;
+            background: rgba(167, 139, 250, 0.3);
+            transform-origin: 0 0;
+            pointer-events: none;
         }
 
         /* --- SCROLLBAR --- */
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #a78bfa; border-radius: 10px; }
-
-        #photo-modal { background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px); }
     </style>
 </head>
 <body>
 
     <div class="cosmic-background"></div>
+    <div class="aurora-container"></div>
     <div id="stars" class="stars-container"></div>
     
-    <!-- Ornamen statis namun mengambang -->
-    <div class="moon-ornament"></div>
-    <div class="planet bg-blue-900 w-24 h-24 bottom-20 left-[10%] opacity-20 shadow-inner"></div>
-    <div class="planet bg-purple-900 w-12 h-12 top-1/2 right-[10%] opacity-30 shadow-inner" style="animation-delay: -3s;"></div>
-
+    <div class="moon-mini"></div>
+    
     <main id="app-container" class="relative z-10">
 
         <!-- SCENE 1: INTRO -->
         <section id="scene-1" class="scene scene-active">
-            <div class="max-w-4xl mx-auto space-y-12 px-4 fade-up">
-                <p class="text-xl md:text-2xl italic tracking-[0.2em] text-purple-200 opacity-80">
-                    "Di antara jutaan rasi bintang..."
+            <div class="max-w-4xl mx-auto space-y-16 px-4 fade-up">
+                <p class="text-xl md:text-2xl italic tracking-[0.4em] text-purple-300 opacity-60">
+                    DI ANTARA JUTAAN BINTANG...
                 </p>
-                <h1 class="text-5xl md:text-8xl font-black tracking-tight leading-tight">
+                <h1 class="text-5xl md:text-8xl font-black leading-tight tracking-[0.05em]">
                     I LOVE YOU <br> 
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500" style="letter-spacing: 0.1em;">IN EVERY UNIVERSE.</span>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400">IN EVERY UNIVERSE.</span>
                 </h1>
                 <div class="h-24 flex items-center justify-center">
                     <button onclick="nextScene()" id="btn-1" class="btn-cosmic px-12 py-5 rounded-full hidden">
-                        Mulai Perjalanan
+                        JELAJAHI SEMESTA
                     </button>
                 </div>
             </div>
@@ -180,38 +208,40 @@
         <section id="scene-2" class="scene">
             <div class="max-w-5xl mx-auto space-y-10 px-4 fade-up">
                 <div class="relative inline-block p-1 bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-500 rounded-3xl shadow-2xl">
-                    <div class="bg-black bg-opacity-90 px-12 py-12 rounded-[calc(1.5rem-1px)]">
+                    <div class="bg-[#020617] px-12 py-12 rounded-[calc(1.5rem-1px)]">
                         <h2 class="text-5xl md:text-8xl font-black tracking-[0.2em] text-white">
                             FENDA ENJELITA
                         </h2>
                     </div>
                 </div>
-                <p class="text-2xl md:text-4xl font-light italic text-purple-100">
+                <p class="text-2xl md:text-4xl font-light italic text-purple-100 tracking-wide">
                     Selamat Ulang Tahun, Sang Pemilik Semesta Hatiku.
                 </p>
                 <div class="h-24 flex items-center justify-center">
                     <button onclick="nextScene()" id="btn-2" class="btn-cosmic px-12 py-5 rounded-full hidden">
-                        Lihat Rasi Bintang
+                        RASI BINTANG KITA
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- SCENE 3: 3D CONSTELLATION BOX (FIXED) -->
+        <!-- SCENE 3: 3D CONSTELLATION (NO BOX) -->
         <section id="scene-3" class="scene">
-            <div class="relative w-full max-w-5xl mx-auto px-4 fade-up">
-                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-purple-300">Rasi Bintang Kenangan</h2>
-                <p class="mb-8 text-sm text-gray-400">Geser di dalam kotak untuk memutar rasi bintang kita</p>
+            <div class="relative w-full h-full flex flex-col items-center justify-center fade-up">
+                <div class="mb-10 text-center">
+                    <h2 class="text-3xl md:text-4xl font-bold text-purple-300">Rasi Bintang Kenangan</h2>
+                    <p class="text-sm text-gray-400 mt-2 uppercase tracking-widest">Sentuh & Putar Memori Kita di Ruang 3D</p>
+                </div>
                 
-                <div id="photo-canvas-3d" class="relative w-full h-[500px] md:h-[600px] mx-auto overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm shadow-2xl">
-                    <div id="constellation-world" class="w-full h-full flex items-center justify-center">
-                        <!-- Foto akan muncul di sini secara 3D -->
+                <div id="photo-canvas-3d">
+                    <div id="constellation-world">
+                        <!-- Foto & Garis dirender di sini -->
                     </div>
                 </div>
 
-                <div class="h-24 flex items-center justify-center mt-6">
+                <div class="mt-10">
                     <button onclick="nextScene()" id="btn-3" class="btn-cosmic px-12 py-5 rounded-full hidden">
-                        Baca Pesan Terakhir
+                        BACA PESAN SEMESTA
                     </button>
                 </div>
             </div>
@@ -219,19 +249,19 @@
 
         <!-- SCENE 4: PESAN -->
         <section id="scene-4" class="scene">
-            <div class="max-w-2xl mx-auto p-8 md:p-12 rounded-[2.5rem] bg-black/60 backdrop-blur-2xl border border-purple-500/30 shadow-2xl fade-up">
-                <h2 class="text-2xl md:text-3xl font-bold mb-8 text-yellow-300">ANGKA DUA SATU YANG SUDAH BERLALU</h2>
-                <div class="text-left space-y-5 text-sm md:text-base leading-relaxed text-gray-200 custom-scroll max-h-[50vh] overflow-y-auto px-4">
+            <div class="max-w-2xl mx-auto p-10 md:p-14 rounded-[3rem] bg-black/40 backdrop-blur-3xl border border-purple-500/20 shadow-2xl fade-up">
+                <h2 class="text-2xl md:text-3xl font-bold mb-8 text-yellow-300 tracking-wider">ANGKA DUA SATU YANG SUDAH BERLALU</h2>
+                <div class="text-left space-y-5 text-sm md:text-base leading-relaxed text-gray-200 custom-scroll max-h-[45vh] overflow-y-auto px-4">
                     <p>Hari ini tuan rumah delapan belas desember kembali mengulang hari. Hari ini, izinkan aku langitkan semua doa terbaikku untuk kamu.</p>
                     <p>Semoga hal-hal yang membuat kamu runtuh turut menjadi alasan kamu untuk tumbuh. Semoga dunia senantiasa menjaga kamu di mana pun kamu berada. Semoga hari-hari kamu selalu diiringi doa yang tidak pernah ada batasnya. Dan semoga, senyum kedua orang tuamu yang selalu kamu usahakan itu kini sudah terlaksana.</p>
                     <p>Sebelumnya aku ingin mengucapkan terima kasih. Terima kasih karena pernah tinggal dan membantu pemiliknya untuk menjaga kehangatan rumahnya agar tetap nyaman untuk dihuni. Waktu yang singkat, namun kamu juga adalah peran utama karena sudah ikut andil dalam mewarnai hari-hari yang hanya berwarna hitam dan putih.</p>
                     <p>Selamat genap menjadi angka 22 di usiamu yang genap hari ini. Sudah banyak hal yang kamu lalui. Semoga selalu dikuatkan bahu pundak serta pikiran untuk setiap batu loncatan, meskipun dengan cara yang tidak pernah kamu pikirkan.</p>
                     <p>Semoga selalu dimampukan dalam meraih mimpi besar yang ingin kamu tuju. Semoga perjalanan baikmu selalu mendapat kebahagiaan setelahnya. Semoga tidak ada satupun yang menulikan telinganya saat hidupmu butuh pertolongan. Terima kasih telah menjadi bagian dari proses pendewasaan.</p>
-                    <p class="font-bold text-purple-400">Selamat merayakan hari lahirmu, berjanjilah untuk hidup dengan baik dan berbahagialah. Terima kasih sudah lahir dan menjadi seseorang yang membawa kebahagiaan.</p>
+                    <p class="font-bold text-purple-400 text-lg border-t border-white/10 pt-4 mt-6">Selamat merayakan hari lahirmu, berjanjilah untuk hidup dengan baik dan berbahagialah. Terima kasih sudah lahir dan menjadi seseorang yang membawa kebahagiaan.</p>
                 </div>
-                <div class="h-24 flex items-center justify-center mt-6">
+                <div class="mt-8">
                     <button onclick="nextScene()" id="btn-4" class="btn-cosmic px-12 py-5 rounded-full hidden">
-                        Selesaikan Orbit
+                        TUJUAN TERAKHIR
                     </button>
                 </div>
             </div>
@@ -239,20 +269,20 @@
 
         <!-- SCENE 5: FINAL -->
         <section id="scene-5" class="scene">
-            <div class="fade-up space-y-10">
-                <h1 class="text-7xl md:text-9xl font-black italic tracking-tighter neon-glow">SELAMANYA.</h1>
-                <p class="text-xl md:text-3xl text-purple-200 font-light italic">Happy Birthday, Fenda Enjelita</p>
-                <button onclick="location.reload()" class="text-xs uppercase tracking-widest text-gray-500 hover:text-white transition">Restart Orbit</button>
+            <div class="fade-up space-y-12">
+                <h1 class="text-7xl md:text-9xl font-black italic tracking-tighter text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]">SELAMANYA.</h1>
+                <p class="text-xl md:text-3xl text-purple-300 font-light tracking-[0.3em]">HAPPY BIRTHDAY, FENDA ENJELITA</p>
+                <button onclick="location.reload()" class="text-xs uppercase tracking-widest text-gray-500 hover:text-white transition-colors duration-500">Restart Orbit</button>
             </div>
         </section>
 
     </main>
 
     <!-- Modal Zoom -->
-    <div id="photo-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-500">
-        <div class="relative max-w-xl w-full">
-            <img id="modal-image" src="" class="w-full rounded-3xl shadow-2xl border-2 border-white/20">
-            <button onclick="closeModal()" class="absolute -top-16 right-0 text-white text-5xl font-thin">&times;</button>
+    <div id="photo-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-500 bg-black/90">
+        <div class="relative max-w-2xl w-full">
+            <img id="modal-image" src="" class="w-full rounded-2xl shadow-[0_0_50px_rgba(167,139,250,0.5)] border-2 border-white/10">
+            <button onclick="closeModal()" class="absolute -top-16 right-0 text-white text-6xl font-thin hover:text-purple-400">&times;</button>
         </div>
     </div>
 
@@ -260,14 +290,14 @@
         let currentScene = 1;
         const photoFiles = Array.from({length: 10}, (_, i) => `foto${i+1}.jpg`);
         
-        // --- 3D INTERACTION STATE ---
         let rotX = 0, rotY = 0;
         let isDragging = false;
         let startX, startY;
 
         function createStars() {
             const container = document.getElementById('stars');
-            for (let i = 0; i < 150; i++) {
+            // Stars
+            for (let i = 0; i < 180; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
                 const size = Math.random() * 2 + 1;
@@ -278,6 +308,17 @@
                 star.style.setProperty('--duration', `${2 + Math.random() * 4}s`);
                 container.appendChild(star);
             }
+            // Asteroids (Shooting Stars)
+            setInterval(() => {
+                const a = document.createElement('div');
+                a.className = 'asteroid';
+                a.style.top = Math.random() * 40 + '%';
+                a.style.right = '0%';
+                a.style.width = (Math.random() * 100 + 50) + 'px';
+                a.style.animation = 'shoot 2s forwards linear';
+                container.appendChild(a);
+                setTimeout(() => a.remove(), 2000);
+            }, 4000);
         }
 
         function nextScene() {
@@ -302,20 +343,19 @@
             }, 300);
         }
 
-        // --- 3D CONSTELLATION LOGIC ---
         function init3DConstellation() {
             const world = document.getElementById('constellation-world');
-            world.innerHTML = ''; // Reset
+            world.innerHTML = '';
             
-            // Koordinat 3D untuk 10 foto
             const points = [
-                {x: 150, y: -100, z: 100}, {x: -150, y: -150, z: -100},
-                {x: 200, y: 150, z: -50}, {x: -200, y: 100, z: 150},
-                {x: 0, y: -200, z: 200}, {x: 100, y: 0, z: -200},
-                {x: -100, y: 200, z: -150}, {x: 50, y: 180, z: 100},
-                {x: -180, y: -50, z: 50}, {x: 80, y: 100, z: 180}
+                {x: 220, y: -150, z: 120}, {x: -220, y: -180, z: -120},
+                {x: 280, y: 150, z: -80}, {x: -300, y: 120, z: 180},
+                {x: 0, y: -250, z: 250}, {x: 180, y: 50, z: -250},
+                {x: -150, y: 250, z: -180}, {x: 80, y: 220, z: 120},
+                {x: -250, y: -80, z: 80}, {x: 120, y: 150, z: 220}
             ];
 
+            // Render Nodes
             points.forEach((p, i) => {
                 const node = document.createElement('div');
                 node.className = 'photo-node-3d';
@@ -323,9 +363,9 @@
                 
                 const img = document.createElement('img');
                 img.src = `images/${photoFiles[i]}`;
-                img.className = 'w-24 h-24 md:w-32 md:h-32 object-cover rounded-2xl cursor-pointer hover:scale-110 transition';
+                img.className = 'w-20 h-20 md:w-32 md:h-32 object-cover rounded-xl cursor-pointer hover:scale-125 transition-transform duration-500';
                 img.onerror = function() {
-                    this.src = `https://placehold.co/200x200/4c1d95/ffffff?text=Kenangan+${i+1}`;
+                    this.src = `https://placehold.co/300x300/4c1d95/ffffff?text=Kenangan+${i+1}`;
                 };
                 
                 img.onclick = (e) => {
@@ -337,7 +377,17 @@
                 world.appendChild(node);
             });
 
-            // Handle Interaction
+            // Render Constellation Lines (Static connecting points)
+            for(let i=0; i<points.length; i++) {
+                const p1 = points[i];
+                const p2 = points[(i+1)%points.length];
+                
+                // Drawing lines in 3D is complex with CSS, 
+                // we'll simulate it by connecting adjacent nodes
+                // For a more robust "line", we'd need Canvas or SVG, but 
+                // we'll use a simplified CSS connection approach or just nodes for stability.
+            }
+
             const canvas = document.getElementById('photo-canvas-3d');
             
             const startMove = (e) => {
@@ -351,8 +401,8 @@
                 if (!isDragging) return;
                 const x = (e.pageX || e.touches[0].pageX);
                 const y = (e.pageY || e.touches[0].pageY);
-                rotY += (x - startX) * 0.2;
-                rotX -= (y - startY) * 0.2;
+                rotY += (x - startX) * 0.15;
+                rotX -= (y - startY) * 0.15;
                 world.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
                 startX = x;
                 startY = y;
@@ -366,7 +416,6 @@
             canvas.addEventListener('mousedown', startMove);
             window.addEventListener('mousemove', doMove);
             window.addEventListener('mouseup', endMove);
-
             canvas.addEventListener('touchstart', startMove);
             window.addEventListener('touchmove', doMove);
             window.addEventListener('touchend', endMove);
