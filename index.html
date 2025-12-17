@@ -61,19 +61,23 @@
         /* ---------------------------------------------------- */
 
         .scene {
-            display: none;
+            display: none; /* Default tersembunyi */
             min-height: 100vh;
-            display: flex;
+            width: 100%;
             align-items: center;
             justify-content: center;
             text-align: center;
             padding: 2rem;
             opacity: 0;
             transition: opacity 1.5s ease-in-out;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
 
+        /* Class untuk menampilkan scene yang aktif */
         .scene-active {
-            display: flex;
+            display: flex !important;
             opacity: 1;
         }
 
@@ -99,6 +103,18 @@
         /* Modal Overlay */
         #photo-modal {
             background: rgba(0, 0, 0, 0.95);
+        }
+
+        /* Custom scrollbar untuk pesan */
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #a78bfa;
+            border-radius: 10px;
         }
         
     </style>
@@ -154,7 +170,7 @@
                 <h2 class="text-3xl md:text-5xl font-bold mb-4 neon-glow text-center">Rasi Bintang Kenangan</h2>
                 <p class="text-center text-purple-300 mb-8 italic text-sm md:text-base">Klik setiap bintang untuk memperbesar kenangan kita</p>
                 
-                <div id="photo-canvas" class="relative w-full h-[500px] md:h-[650px] mx-auto overflow-hidden rounded-2xl border border-white border-opacity-10 bg-black bg-opacity-30">
+                <div id="photo-canvas" class="relative w-full h-[400px] md:h-[600px] mx-auto overflow-hidden rounded-2xl border border-white border-opacity-10 bg-black bg-opacity-30 shadow-inner">
                     <svg id="constellation-svg" class="absolute inset-0 w-full h-full pointer-events-none"></svg>
                     <!-- Foto akan dirender di sini oleh JS -->
                 </div>
@@ -169,16 +185,18 @@
 
         <!-- SCENE 4: PESAN PRIBADI -->
         <section id="scene-4" class="scene">
-            <div class="max-w-2xl mx-auto p-10 rounded-3xl bg-white bg-opacity-5 backdrop-blur-xl border border-white border-opacity-10 shadow-2xl relative text-center">
-                <h2 class="text-3xl font-bold mb-8 text-yellow-300">Pesan dari Semesta</h2>
-                <div class="text-left space-y-5 text-lg leading-relaxed text-gray-200 italic">
-                    <p>Sayangku Fenda Enjelita,</p>
-                    <p>Dari jutaan galaksi dan ribuan garis waktu, jiwaku selalu memilihmu. Kamu adalah gravitasi yang menarikku pulang, cahaya yang menuntunku saat gelap.</p>
-                    <p>Terima kasih telah lahir ke dunia ini. Terima kasih telah menjadi bagian terindah dari setiap versiku di alam semesta manapun.</p>
-                    <p class="font-bold text-purple-300">I love you, now and in every universe.</p>
+            <div class="max-w-2xl mx-auto p-6 md:p-10 rounded-3xl bg-white bg-opacity-5 backdrop-blur-xl border border-white border-opacity-10 shadow-2xl relative text-center">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6 text-yellow-300 neon-glow">ANGKA DUA SATU YANG SUDAH BERLALU</h2>
+                <div class="text-left space-y-4 text-sm md:text-base leading-relaxed text-gray-200 custom-scroll max-h-[50vh] overflow-y-auto px-2">
+                    <p>Hari ini tuan rumah delapan belas desember kembali mengulang hari. Hari ini, izinkan aku langitkan semua doa terbaikku untuk kamu. </p>
+                    <p>Semoga hal-hal yang membuat kamu runtuh turut menjadi alasan kamu untuk tumbuh. Semoga dunia senantiasa menjaga kamu di mana pun kamu berada. Semoga hari-hari kamu selalu diiringi doa yang tidak pernah ada batasnya. Dan semoga, senyum kedua orang tuamu yang selalu kamu usahakan itu kini sudah terlaksana.</p>
+                    <p>Sebelumnya aku ingin mengucapkan terima kasih. Terima kasih karena pernah tinggal dan membantu pemiliknya untuk menjaga kehangatan rumahnya agar tetap nyaman untuk dihuni. Waktu yang singkat, namun kamu juga adalah peran utama karena sudah ikut andil dalam mewarnai hari-hari yang hanya berwarna hitam dan putih.</p>
+                    <p>Selamat genap menjadi angka 22 di usiamu yang genap hari ini. Sudah banyak hal yang kamu lalui. Semoga selalu dikuatkan bahu pundak serta pikiran untuk setiap batu loncatan, meskipun dengan cara yang tidak pernah kamu pikirkan.</p>
+                    <p>Semoga selalu dimampukan dalam meraih mimpi besar yang ingin kamu tuju. Semoga perjalanan baikmu selalu mendapat kebahagiaan setelahnya. Semoga tidak ada satupun yang menulikan telinganya saat hidupmu butuh pertolongan. Terima kasih telah menjadi bagian dari proses pendewasaan.</p>
+                    <p class="font-bold text-purple-300">Selamat merayakan hari lahirmu, berjanjilah untuk hidup dengan baik dan berbahagialah. Terima kasih sudah lahir dan menjadi seseorang yang membawa kebahagiaan.</p>
                 </div>
 
-                <div class="h-20 flex items-center justify-center mt-10">
+                <div class="h-20 flex items-center justify-center mt-8">
                     <button onclick="nextScene()" id="btn-4" class="btn-cosmic px-10 py-4 rounded-full hidden">
                         Akhiri Perjalanan
                     </button>
@@ -219,22 +237,21 @@
     </div>
 
     <script>
-        // 1. PENGATURAN FOTO (GANTI NAMA FILE DI SINI)
-        // Sesuaikan dengan nama file foto di dalam folder images/ Anda
+        // 1. PENGATURAN FOTO
         const photoFiles = [
             'foto1.jpg', 'foto2.jpg', 'foto3.jpg', 'foto4.jpg', 'foto5.jpg',
             'foto6.jpg', 'foto7.jpg', 'foto8.jpg', 'foto9.jpg', 'foto10.jpg'
         ];
 
-        // Koordinat rasi bintang (persentase agar responsif)
+        // Koordinat rasi bintang (persentase)
         const photoCoords = [
-            { x: 15, y: 20 }, { x: 45, y: 15 }, { x: 80, y: 20 },
-            { x: 65, y: 40 }, { x: 85, y: 70 }, { x: 50, y: 85 },
-            { x: 20, y: 75 }, { x: 10, y: 50 }, { x: 40, y: 45 },
-            { x: 25, y: 35 }
+            { x: 15, y: 25 }, { x: 45, y: 15 }, { x: 80, y: 20 },
+            { x: 65, y: 45 }, { x: 85, y: 75 }, { x: 50, y: 85 },
+            { x: 20, y: 75 }, { x: 10, y: 50 }, { x: 40, y: 55 },
+            { x: 30, y: 35 }
         ];
 
-        // Koneksi garis rasi bintang (index foto)
+        // Koneksi garis
         const lines = [
             [0,1], [1,2], [2,3], [3,4], [4,5], [5,6], [6,7], [7,0], [1,8], [8,3], [7,9], [9,1]
         ];
@@ -261,19 +278,32 @@
             const current = document.getElementById(`scene-${currentScene}`);
             current.classList.remove('scene-active');
             
+            // Increment scene
             currentScene++;
             if (currentScene > 5) currentScene = 1;
 
             const next = document.getElementById(`scene-${currentScene}`);
+            
+            // Tunggu sebentar agar animasi fade-out selesai baru aktifkan scene berikutnya
             setTimeout(() => {
-                next.classList.add('scene-active');
-                if (currentScene === 3) initConstellation();
+                // Pastikan semua scene lain mati
+                document.querySelectorAll('.scene').forEach(s => s.classList.remove('scene-active'));
                 
-                // Show button after delay
-                setTimeout(() => {
-                    const btn = document.getElementById(`btn-${currentScene}`);
-                    if (btn) btn.classList.remove('hidden');
-                }, 2000);
+                next.classList.add('scene-active');
+                
+                if (currentScene === 3) {
+                    // Beri waktu sedikit untuk container merender ukurannya sebelum gambar konstelasi
+                    setTimeout(initConstellation, 100);
+                }
+                
+                // Sembunyikan tombol di scene baru sebelum muncul otomatis
+                const btn = document.getElementById(`btn-${currentScene}`);
+                if (btn) {
+                    btn.classList.add('hidden');
+                    setTimeout(() => {
+                        btn.classList.remove('hidden');
+                    }, 2500);
+                }
             }, 100);
         }
 
@@ -284,10 +314,10 @@
         function initConstellation() {
             const canvas = document.getElementById('photo-canvas');
             const svg = document.getElementById('constellation-svg');
+            
+            // Bersihkan konten lama
             canvas.querySelectorAll('.photo-node').forEach(n => n.remove());
             svg.innerHTML = '';
-
-            const rect = canvas.getBoundingClientRect();
 
             // Draw Lines
             lines.forEach(pair => {
@@ -299,30 +329,28 @@
                 line.setAttribute('x2', `${end.x}%`);
                 line.setAttribute('y2', `${end.y}%`);
                 line.setAttribute('stroke', 'rgba(167, 139, 250, 0.3)');
-                line.setAttribute('stroke-width', '1');
+                line.setAttribute('stroke-width', '1.5');
                 svg.appendChild(line);
             });
 
             // Draw Photos
             photoCoords.forEach((coord, i) => {
                 const node = document.createElement('div');
-                node.className = 'photo-node absolute w-12 h-12 md:w-16 md:h-16 cursor-pointer transform -translate-x-1/2 -translate-y-1/2 hover:scale-125 transition duration-300 z-20';
+                node.className = 'photo-node absolute w-14 h-14 md:w-20 md:h-20 cursor-pointer transform -translate-x-1/2 -translate-y-1/2 hover:scale-125 transition duration-300 z-20';
                 node.style.left = `${coord.x}%`;
                 node.style.top = `${coord.y}%`;
                 
                 const img = document.createElement('img');
-                // Mengambil foto dari folder images/
                 img.src = `images/${photoFiles[i]}`;
                 img.className = 'w-full h-full object-cover rounded-full border-2 border-purple-400 shadow-lg';
                 img.onerror = function() {
-                    // Fallback jika foto tidak ditemukan
                     this.src = `https://placehold.co/100x100/4c1d95/ffffff?text=${i+1}`;
                 };
                 
                 node.onclick = () => openModal(img.src);
                 node.appendChild(img);
                 
-                // Star glow effect behind photo
+                // Star glow effect
                 const glow = document.createElement('div');
                 glow.className = 'absolute inset-0 bg-purple-500 rounded-full blur-md opacity-40 animate-pulse -z-10';
                 node.appendChild(glow);
@@ -350,9 +378,11 @@
 
         window.onload = () => {
             createStars();
+            // Tampilkan tombol pertama setelah intro
             setTimeout(() => {
-                document.getElementById('btn-1').classList.remove('hidden');
-            }, 2500);
+                const btn1 = document.getElementById('btn-1');
+                if (btn1) btn1.classList.remove('hidden');
+            }, 3000);
         };
     </script>
 </body>
