@@ -1,75 +1,359 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Happy Birthday Fenda Enjelita - I Love You in Every Universe</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Cosmic Journey for Fenda Enjelita</title>
+    <!-- Memuat Tailwind CSS untuk styling modern dan responsif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat Font Inter dari Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* Mengatur font utama dan warna latar belakang kosmik */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            overflow: hidden; /* Mencegah scroll saat transisi scene */
+            color: white;
+        }
+
+        /* ---------------------------------------------------- */
+        /* EFEK KOSMIK: Nebula dan Bintang Berkelip */
+        /* ---------------------------------------------------- */
+
+        .cosmic-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Latar belakang galaksi menggunakan gradasi CSS agar tidak berat */
+            background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+            z-index: -20;
+        }
+
+        /* Bintang-bintang statis dan bergerak */
+        .stars-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -10;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: twinkle var(--duration) infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* ---------------------------------------------------- */
+        /* CUSTOM STYLES & UTILITIES */
+        /* ---------------------------------------------------- */
+
+        .scene {
+            display: none;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        .scene-active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .neon-glow {
+            text-shadow: 0 0 10px rgba(167, 139, 250, 0.8), 0 0 20px rgba(167, 139, 250, 0.5);
+        }
+
+        .btn-cosmic {
+            background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-cosmic:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.6);
+        }
+
+        /* Modal Overlay */
+        #photo-modal {
+            background: rgba(0, 0, 0, 0.95);
+        }
+        
+    </style>
 </head>
-<body>
-  <main>
-    <!-- Scene 1: Opening Universe -->
-    <section id="scene1" class="scene">
-      <div class="universe-bg"></div>
-      <div class="text-sequence">
-        <p class="text-step">In every universe...</p>
-        <p class="text-step">Where stars align...</p>
-        <p class="text-step">My love for you shines...</p>
-        <p class="text-step">Forever and always.</p>
-      </div>
-      <button class="next-btn" data-target="scene2">Next</button>
-    </section>
+<body class="bg-black">
 
-    <!-- Scene 2: Nama + Pesan Cinta Utama -->
-    <section id="scene2" class="scene">
-      <div class="name-message">
-        <h1>FENDA ENJELITA</h1>
-        <p class="love-message">I love you in every universe. You are my star, my galaxy, my everything.</p>
-      </div>
-      <button class="next-btn" data-target="scene3">Next</button>
-    </section>
+    <div class="cosmic-background"></div>
+    <div id="stars" class="stars-container"></div>
 
-    <!-- Scene 3: Galeri Foto sebagai Konstelasi -->
-    <section id="scene3" class="scene">
-      <div class="constellation-gallery">
-        <img src="images/foto1.jpg" class="star-photo">
-        <img src="images/foto2.jpg" class="star-photo">
-        <img src="images/foto3.jpg" class="star-photo">
-        <img src="images/foto4.jpg" class="star-photo">
-        <img src="images/foto5.jpg" class="star-photo">
-        <img src="images/foto6.jpg" class="star-photo">
-        <img src="images/foto7.jpg" class="star-photo">
-        <img src="images/foto8.jpg" class="star-photo">
-        <img src="images/foto9.jpg" class="star-photo">
-        <img src="images/foto10.jpg" class="star-photo">
-      </div>
-      <button class="next-btn" data-target="scene4">Next</button>
-    </section>
+    <main id="app-container" class="relative z-10">
 
-    <!-- Scene 4: Surat Romantis -->
-    <section id="scene4" class="scene">
-      <div class="romantic-letter">
-        <h2>Angka Dua Satu yang Sudah Berlalu</h2>
-        <div class="letter-content">
-          <p>Hari ini tuan rumah delapan belas desember kembali mengulang hari. Hari ini, izinkan aku langitkan semua doa terbaikku untuk kamu. Semoga hal-hal yang membuat kamu runtuh turut menjadi alasan kamu untuk tumbuh. Semoga dunia senantiasa menjaga kamu di mana pun kamu berada. Semoga hari-hari kamu selalu diiringi doa yang tidak pernah ada batasnya. Dan semoga, senyum kedua orang tuamu yang selalu kamu usahakan itu kini sudah terlaksana.</p>
-          <p>Sebelumnya aku ingin mengucapkan terima kasih. Terima kasih karena pernah tinggal dan membantu pemiliknya untuk menjaga kehangatan rumahnya agar tetap nyaman untuk dihuni. Waktu yang singkat, namun kamu juga adalah peran utama karena sudah ikut andil dalam mewarnai hari-hari yang hanya berwarna hitam dan putih.</p>
-          <p>Selamat genap menjadi angka 22 di usiamu yang genap hari ini. Sudah banyak hal yang kamu lalui. Semoga selalu dikuatkan bahu pundak serta pikiran untuk setiap batu loncatan, meskipun dengan cara yang tidak pernah kamu pikirkan.</p>
-          <p>Semoga selalu dimampukan dalam meraih mimpi besar yang ingin kamu tuju. Semoga perjalanan baikmu selalu mendapat kebahagiaan setelahnya. Semoga tidak ada satupun yang menulikan telinganya saat hidupmu butuh pertolongan. Terima kasih telah menjadi bagian dari proses pendewasaan.</p>
-          <p>Selamat merayakan hari lahirmu, berjanjilah untuk hidup dengan baik dan berbahagialah. Terima kasih sudah lahir dan menjadi seseorang yang membawa kebahagiaan.</p>
+        <!-- SCENE 1: INTRO -->
+        <section id="scene-1" class="scene scene-active">
+            <div class="max-w-4xl mx-auto space-y-8 px-4">
+                <p class="text-xl md:text-2xl italic mb-4 opacity-75">
+                    "If I had a single flower for every time I think about you, I could walk forever in my garden..."
+                </p>
+                <h1 class="text-4xl md:text-7xl font-extrabold tracking-tight neon-glow">
+                    I LOVE YOU IN EVERY UNIVERSE.
+                </h1>
+                <div class="h-20 flex items-center justify-center">
+                    <button onclick="nextScene()" id="btn-1" class="btn-cosmic px-10 py-4 rounded-full hidden">
+                        Mulai Perjalanan Kosmik
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 2: UCAPAN ULANG TAHUN -->
+        <section id="scene-2" class="scene">
+            <div class="max-w-5xl mx-auto space-y-10 px-4">
+                <div class="relative inline-block p-8 rounded-3xl bg-white bg-opacity-5 backdrop-blur-lg border border-white border-opacity-10 shadow-2xl">
+                    <h2 class="text-5xl md:text-8xl font-black tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-yellow-400">
+                        FENDA ENJELITA
+                    </h2>
+                </div>
+                
+                <p class="text-2xl md:text-4xl font-light italic mt-6 text-purple-200">
+                    Selamat Ulang Tahun, Bintang Paling Terang di Semestaku.
+                </p>
+
+                <div class="h-20 flex items-center justify-center">
+                    <button onclick="nextScene()" id="btn-2" class="btn-cosmic px-10 py-4 rounded-full hidden">
+                        Lihat Rasi Bintang Kita
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 3: KONSTELASI FOTO -->
+        <section id="scene-3" class="scene">
+            <div class="relative w-full max-w-6xl mx-auto px-4">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4 neon-glow text-center">Rasi Bintang Kenangan</h2>
+                <p class="text-center text-purple-300 mb-8 italic text-sm md:text-base">Klik setiap bintang untuk memperbesar kenangan kita</p>
+                
+                <div id="photo-canvas" class="relative w-full h-[500px] md:h-[650px] mx-auto overflow-hidden rounded-2xl border border-white border-opacity-10 bg-black bg-opacity-30">
+                    <svg id="constellation-svg" class="absolute inset-0 w-full h-full pointer-events-none"></svg>
+                    <!-- Foto akan dirender di sini oleh JS -->
+                </div>
+
+                <div class="h-20 flex items-center justify-center mt-6">
+                    <button onclick="nextScene()" id="btn-3" class="btn-cosmic px-10 py-4 rounded-full hidden">
+                        Lanjut ke Pesan
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 4: PESAN PRIBADI -->
+        <section id="scene-4" class="scene">
+            <div class="max-w-2xl mx-auto p-10 rounded-3xl bg-white bg-opacity-5 backdrop-blur-xl border border-white border-opacity-10 shadow-2xl relative text-center">
+                <h2 class="text-3xl font-bold mb-8 text-yellow-300">Pesan dari Semesta</h2>
+                <div class="text-left space-y-5 text-lg leading-relaxed text-gray-200 italic">
+                    <p>Sayangku Fenda Enjelita,</p>
+                    <p>Dari jutaan galaksi dan ribuan garis waktu, jiwaku selalu memilihmu. Kamu adalah gravitasi yang menarikku pulang, cahaya yang menuntunku saat gelap.</p>
+                    <p>Terima kasih telah lahir ke dunia ini. Terima kasih telah menjadi bagian terindah dari setiap versiku di alam semesta manapun.</p>
+                    <p class="font-bold text-purple-300">I love you, now and in every universe.</p>
+                </div>
+
+                <div class="h-20 flex items-center justify-center mt-10">
+                    <button onclick="nextScene()" id="btn-4" class="btn-cosmic px-10 py-4 rounded-full hidden">
+                        Akhiri Perjalanan
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 5: CLOSING -->
+        <section id="scene-5" class="scene">
+            <div class="max-w-4xl mx-auto space-y-12 px-4">
+                <h1 class="text-5xl md:text-8xl font-black text-white tracking-tighter neon-glow">
+                    SELAMANYA.
+                </h1>
+                <p class="text-xl md:text-3xl font-light italic text-purple-200">
+                    Happy Birthday, My Universe.
+                </p>
+                <div class="flex flex-col items-center space-y-6">
+                    <div class="w-20 h-20 rounded-full bg-pink-500 bg-opacity-20 flex items-center justify-center animate-pulse">
+                        <svg class="w-10 h-10 text-pink-500 fill-current" viewBox="0 0 24 24">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                    </div>
+                    <button onclick="restartJourney()" class="text-sm uppercase tracking-widest text-gray-400 hover:text-white transition">
+                        Mulai dari awal
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Zoom -->
+    <div id="photo-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-500">
+        <div class="relative max-w-3xl w-full">
+            <img id="modal-image" src="" class="w-full h-auto rounded-2xl shadow-2xl border-2 border-white border-opacity-20 transform scale-90 transition-transform duration-500">
+            <button onclick="closeModal()" class="absolute -top-12 right-0 text-white text-4xl hover:text-purple-400">&times;</button>
         </div>
-      </div>
-      <button class="next-btn" data-target="scene5">Next</button>
-    </section>
+    </div>
 
-    <!-- Scene 5: Ending Bahagia -->
-    <section id="scene5" class="scene">
-      <div class="ending-message">
-        <p class="birthday-wish">Happy Birthday, Fenda Enjelita!</p>
-        <p class="final-note">May your day be as beautiful and infinite as the universe. I love you in every universe.</p>
-      </div>
-    </section>
-  </main>
+    <script>
+        // 1. PENGATURAN FOTO (GANTI NAMA FILE DI SINI)
+        // Sesuaikan dengan nama file foto di dalam folder images/ Anda
+        const photoFiles = [
+            'foto1.jpg', 'foto2.jpg', 'foto3.jpg', 'foto4.jpg', 'foto5.jpg',
+            'foto6.jpg', 'foto7.jpg', 'foto8.jpg', 'foto9.jpg', 'foto10.jpg'
+        ];
 
-  <script src="script.js"></script>
+        // Koordinat rasi bintang (persentase agar responsif)
+        const photoCoords = [
+            { x: 15, y: 20 }, { x: 45, y: 15 }, { x: 80, y: 20 },
+            { x: 65, y: 40 }, { x: 85, y: 70 }, { x: 50, y: 85 },
+            { x: 20, y: 75 }, { x: 10, y: 50 }, { x: 40, y: 45 },
+            { x: 25, y: 35 }
+        ];
+
+        // Koneksi garis rasi bintang (index foto)
+        const lines = [
+            [0,1], [1,2], [2,3], [3,4], [4,5], [5,6], [6,7], [7,0], [1,8], [8,3], [7,9], [9,1]
+        ];
+
+        let currentScene = 1;
+
+        // Generate Bintang Latar Belakang
+        function createStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 150; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 3;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.setProperty('--duration', `${2 + Math.random() * 4}s`);
+                container.appendChild(star);
+            }
+        }
+
+        function nextScene() {
+            const current = document.getElementById(`scene-${currentScene}`);
+            current.classList.remove('scene-active');
+            
+            currentScene++;
+            if (currentScene > 5) currentScene = 1;
+
+            const next = document.getElementById(`scene-${currentScene}`);
+            setTimeout(() => {
+                next.classList.add('scene-active');
+                if (currentScene === 3) initConstellation();
+                
+                // Show button after delay
+                setTimeout(() => {
+                    const btn = document.getElementById(`btn-${currentScene}`);
+                    if (btn) btn.classList.remove('hidden');
+                }, 2000);
+            }, 100);
+        }
+
+        function restartJourney() {
+            location.reload();
+        }
+
+        function initConstellation() {
+            const canvas = document.getElementById('photo-canvas');
+            const svg = document.getElementById('constellation-svg');
+            canvas.querySelectorAll('.photo-node').forEach(n => n.remove());
+            svg.innerHTML = '';
+
+            const rect = canvas.getBoundingClientRect();
+
+            // Draw Lines
+            lines.forEach(pair => {
+                const start = photoCoords[pair[0]];
+                const end = photoCoords[pair[1]];
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute('x1', `${start.x}%`);
+                line.setAttribute('y1', `${start.y}%`);
+                line.setAttribute('x2', `${end.x}%`);
+                line.setAttribute('y2', `${end.y}%`);
+                line.setAttribute('stroke', 'rgba(167, 139, 250, 0.3)');
+                line.setAttribute('stroke-width', '1');
+                svg.appendChild(line);
+            });
+
+            // Draw Photos
+            photoCoords.forEach((coord, i) => {
+                const node = document.createElement('div');
+                node.className = 'photo-node absolute w-12 h-12 md:w-16 md:h-16 cursor-pointer transform -translate-x-1/2 -translate-y-1/2 hover:scale-125 transition duration-300 z-20';
+                node.style.left = `${coord.x}%`;
+                node.style.top = `${coord.y}%`;
+                
+                const img = document.createElement('img');
+                // Mengambil foto dari folder images/
+                img.src = `images/${photoFiles[i]}`;
+                img.className = 'w-full h-full object-cover rounded-full border-2 border-purple-400 shadow-lg';
+                img.onerror = function() {
+                    // Fallback jika foto tidak ditemukan
+                    this.src = `https://placehold.co/100x100/4c1d95/ffffff?text=${i+1}`;
+                };
+                
+                node.onclick = () => openModal(img.src);
+                node.appendChild(img);
+                
+                // Star glow effect behind photo
+                const glow = document.createElement('div');
+                glow.className = 'absolute inset-0 bg-purple-500 rounded-full blur-md opacity-40 animate-pulse -z-10';
+                node.appendChild(glow);
+
+                canvas.appendChild(node);
+            });
+        }
+
+        function openModal(src) {
+            const modal = document.getElementById('photo-modal');
+            const img = document.getElementById('modal-image');
+            img.src = src;
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            img.classList.remove('scale-90');
+            img.classList.add('scale-100');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('photo-modal');
+            const img = document.getElementById('modal-image');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            img.classList.add('scale-90');
+            img.classList.remove('scale-100');
+        }
+
+        window.onload = () => {
+            createStars();
+            setTimeout(() => {
+                document.getElementById('btn-1').classList.remove('hidden');
+            }, 2500);
+        };
+    </script>
 </body>
 </html>
