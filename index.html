@@ -1,427 +1,392 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cosmic Journey - Fenda Enjelita</title>
+    <title>Cosmic Journey 3D - Fenda Enjelita</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;900&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --aurora-1: #3b82f6;
+            --aurora-2: #a855f7;
+            --aurora-3: #ec4899;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #050505;
-            overflow: hidden;
+            background-color: #020617;
             color: white;
             margin: 0;
+            overflow: hidden;
         }
 
-        /* ---------------------------------------------------- */
-        /* LATAR BELAKANG DINAMIS */
-        /* ---------------------------------------------------- */
-        .cosmic-background {
+        /* --- BACKGROUND & AURORA --- */
+        #bg-canvas {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, #1b2735 0%, #050505 100%);
-            z-index: -20;
-        }
-
-        /* Bintang-bintang */
-        .stars-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
             z-index: -10;
+        }
+
+        .aurora {
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, var(--aurora-1), var(--aurora-2), var(--aurora-3), transparent);
+            opacity: 0.15;
+            filter: blur(100px);
+            animation: rotateAurora 20s linear infinite;
+            z-index: -5;
             pointer-events: none;
         }
 
-        .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            opacity: 0.5;
-            animation: twinkle var(--duration) infinite ease-in-out;
+        @keyframes rotateAurora {
+            from { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            to { transform: rotate(360deg) scale(1); }
         }
 
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.3); }
-        }
-
-        /* Asteroid/Shooting Star */
-        .shooting-star {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: linear-gradient(90deg, white, transparent);
-            opacity: 0;
-            animation: shoot 5s infinite;
-        }
-
-        @keyframes shoot {
-            0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 0; }
-            10% { opacity: 1; }
-            20% { transform: translateX(-500px) translateY(500px) rotate(-45deg); opacity: 0; }
-            100% { opacity: 0; }
-        }
-
-        /* Ornamen Planet */
-        .planet {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(1px);
-            z-index: -5;
-            animation: float 8s infinite ease-in-out;
-            opacity: 0.6;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-30px) rotate(10deg); }
-        }
-
-        /* ---------------------------------------------------- */
-        /* TRANSISI SCENE & ANIMASI KONTEN */
-        /* ---------------------------------------------------- */
+        /* --- SCENE CONTROL --- */
         .scene {
             display: none;
-            min-height: 100vh;
-            width: 100%;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 2rem;
-            opacity: 0;
-            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
             position: absolute;
-            top: 0;
-            left: 0;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 1s ease-in-out, transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: scale(0.8) translateY(50px);
+            z-index: 10;
         }
 
         .scene-active {
             display: flex !important;
             opacity: 1;
+            transform: scale(1) translateY(0);
         }
 
-        /* Animasi Masuk Teks */
-        .fade-up {
-            animation: fadeUp 1.5s forwards;
+        /* --- TYPOGRAPHY --- */
+        .cosmic-title {
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            line-height: 1.4;
+            text-shadow: 0 0 30px rgba(167, 139, 250, 0.6);
         }
 
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(30px); filter: blur(10px); }
-            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        /* --- BUTTONS --- */
+        .btn-portal {
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .neon-glow {
-            text-shadow: 0 0 15px rgba(167, 139, 250, 0.8), 0 0 30px rgba(167, 139, 250, 0.4);
+        .btn-portal:hover {
+            border-color: var(--aurora-2);
+            box-shadow: 0 0 40px rgba(167, 139, 250, 0.4);
+            transform: translateY(-5px);
         }
 
-        .btn-cosmic {
-            background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
-            color: white;
-            font-weight: bold;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
-            border: none;
-            cursor: pointer;
+        /* --- MOON ELEMENT --- */
+        .moon-bg {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #f8fafc 0%, #cbd5e1 50%, #94a3b8 100%);
+            border-radius: 50%;
+            filter: blur(2px);
+            box-shadow: 0 0 100px rgba(255, 255, 255, 0.2), inset -20px -20px 60px rgba(0,0,0,0.5);
+            z-index: -1;
+            opacity: 0.8;
+            animation: moonPulse 8s infinite alternate ease-in-out;
         }
 
-        .btn-cosmic:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 40px rgba(167, 139, 250, 0.8);
+        @keyframes moonPulse {
+            from { transform: scale(1); opacity: 0.6; }
+            to { transform: scale(1.1); opacity: 0.8; }
         }
 
-        /* Custom scrollbar */
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #a78bfa; border-radius: 10px; }
-
-        #photo-modal { background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px); }
+        /* --- SCROLLBAR --- */
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: var(--aurora-2); border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="cosmic-background"></div>
-    <div id="stars" class="stars-container"></div>
-    
-    <!-- Elemen Dekoratif Orbit (Planet & Bulan) -->
-    <div class="planet bg-purple-900 w-32 h-32 top-10 left-[10%] opacity-20 shadow-[inset_-10px_-10px_50px_rgba(0,0,0,0.8)]"></div>
-    <div class="planet bg-blue-900 w-16 h-16 bottom-20 right-[15%] opacity-30 shadow-[inset_-5px_-5px_20px_rgba(0,0,0,0.8)]" style="animation-delay: -2s;"></div>
-    <div class="planet bg-yellow-700 w-8 h-8 top-1/2 right-[5%] opacity-20" style="animation-delay: -4s;"></div>
+    <canvas id="bg-canvas"></canvas>
+    <div class="aurora"></div>
 
-    <main id="app-container" class="relative z-10">
+    <!-- MAIN CONTAINER -->
+    <main class="relative h-screen w-full flex items-center justify-center overflow-hidden">
 
-        <!-- SCENE 1: INTRO -->
-        <section id="scene-1" class="scene scene-active">
-            <div class="max-w-4xl mx-auto space-y-8 px-4 fade-up">
-                <p class="text-xl md:text-2xl italic mb-4 text-purple-200 opacity-80">
-                    "Di antara jutaan bintang, mataku hanya tertuju pada satu..."
-                </p>
-                <h1 class="text-5xl md:text-8xl font-black tracking-tighter neon-glow leading-tight">
-                    I LOVE YOU <br> <span class="text-purple-400">IN EVERY UNIVERSE.</span>
+        <!-- SCENE 1: THE GREAT MOON -->
+        <section id="scene-1" class="scene scene-active flex-col">
+            <div class="moon-bg opacity-30"></div>
+            <div class="z-20 text-center px-6">
+                <p class="text-lg md:text-xl font-light mb-6 tracking-[0.5em] text-blue-300">EST. 2025</p>
+                <h1 class="text-4xl md:text-7xl font-black cosmic-title mb-12">
+                    I LOVE YOU<br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">IN EVERY UNIVERSE</span>
                 </h1>
-                <div class="h-24 flex items-center justify-center">
-                    <button onclick="nextScene()" id="btn-1" class="btn-cosmic px-12 py-5 rounded-full hidden">
-                        Jelajahi Semesta
+                <div class="h-24">
+                    <button onclick="nextScene()" class="btn-portal px-12 py-4 rounded-full opacity-0 translate-y-10 transition-all duration-1000 delay-1000" id="btn-1">
+                        MULAI PERJALANAN
                     </button>
                 </div>
             </div>
+            <!-- Benda langit tambahan -->
+            <div class="absolute top-20 right-[15%] w-12 h-12 bg-red-900 rounded-full blur-[1px] opacity-40 animate-bounce"></div>
+            <div class="absolute bottom-40 left-[10%] w-24 h-24 bg-blue-900 rounded-full blur-[2px] opacity-20"></div>
         </section>
 
-        <!-- SCENE 2: UCAPAN ULANG TAHUN -->
-        <section id="scene-2" class="scene">
-            <div class="max-w-5xl mx-auto space-y-10 px-4 fade-up">
-                <div class="relative inline-block p-1 bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-500 rounded-3xl shadow-2xl">
-                    <div class="bg-black bg-opacity-90 px-10 py-10 rounded-[calc(1.5rem-1px)] backdrop-blur-md">
-                        <h2 class="text-5xl md:text-8xl font-black tracking-widest text-white">
-                            FENDA ENJELITA
-                        </h2>
-                    </div>
-                </div>
-                
-                <p class="text-2xl md:text-4xl font-light italic mt-6 text-purple-100">
-                    Selamat Ulang Tahun, <span class="text-yellow-400 font-medium">Bintang Utama</span> di Hidupku.
-                </p>
-
-                <div class="h-24 flex items-center justify-center">
-                    <button onclick="nextScene()" id="btn-2" class="btn-cosmic px-12 py-5 rounded-full hidden">
-                        Lihat Rasi Bintang Kita
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- SCENE 3: KONSTELASI FOTO -->
-        <section id="scene-3" class="scene">
-            <div class="relative w-full max-w-6xl mx-auto px-4 fade-up">
-                <h2 class="text-3xl md:text-5xl font-bold mb-4 neon-glow">Rasi Bintang Kenangan</h2>
-                <p class="text-purple-300 mb-8 italic">Setiap titik adalah momen berharga yang kita lalui...</p>
-                
-                <div id="photo-canvas" class="relative w-full h-[450px] md:h-[600px] mx-auto overflow-hidden rounded-3xl border border-white border-opacity-10 bg-white bg-opacity-5 backdrop-blur-md shadow-2xl">
-                    <svg id="constellation-svg" class="absolute inset-0 w-full h-full pointer-events-none"></svg>
-                    <!-- Foto akan dirender di sini -->
-                </div>
-
-                <div class="h-24 flex items-center justify-center mt-6">
-                    <button onclick="nextScene()" id="btn-3" class="btn-cosmic px-12 py-5 rounded-full hidden">
-                        Baca Pesan Semesta
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- SCENE 4: PESAN PRIBADI -->
-        <section id="scene-4" class="scene">
-            <div class="max-w-3xl mx-auto p-8 md:p-12 rounded-[2rem] bg-black bg-opacity-60 backdrop-blur-2xl border border-purple-500 border-opacity-30 shadow-[0_0_50px_rgba(167,139,250,0.2)] relative fade-up">
-                <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-purple-600 px-6 py-2 rounded-full text-xs font-bold tracking-widest uppercase shadow-lg">Pesan Dari Hatiku</div>
-                
-                <h2 class="text-2xl md:text-3xl font-bold mb-8 text-yellow-300">ANGKA DUA SATU YANG SUDAH BERLALU</h2>
-                <div class="text-left space-y-5 text-sm md:text-lg leading-relaxed text-gray-200 custom-scroll max-h-[50vh] overflow-y-auto px-4">
-                    <p>Hari ini tuan rumah delapan belas desember kembali mengulang hari. Hari ini, izinkan aku langitkan semua doa terbaikku untuk kamu. </p>
-                    <p>Semoga hal-hal yang membuat kamu runtuh turut menjadi alasan kamu untuk tumbuh. Semoga dunia senantiasa menjaga kamu di mana pun kamu berada. Semoga hari-hari kamu selalu diiringi doa yang tidak pernah ada batasnya. Dan semoga, senyum kedua orang tuamu yang selalu kamu usahakan itu kini sudah terlaksana.</p>
-                    <p>Sebelumnya aku ingin mengucapkan terima kasih. Terima kasih karena pernah tinggal dan membantu pemiliknya untuk menjaga kehangatan rumahnya agar tetap nyaman untuk dihuni. Waktu yang singkat, namun kamu juga adalah peran utama karena sudah ikut andil dalam mewarnai hari-hari yang hanya berwarna hitam dan putih.</p>
-                    <p>Selamat genap menjadi angka 22 di usiamu yang genap hari ini. Sudah banyak hal yang kamu lalui. Semoga selalu dikuatkan bahu pundak serta pikiran untuk setiap batu loncatan, meskipun dengan cara yang tidak pernah kamu pikirkan.</p>
-                    <p>Semoga selalu dimampukan dalam meraih mimpi besar yang ingin kamu tuju. Semoga perjalanan baikmu selalu mendapat kebahagiaan setelahnya. Semoga tidak ada satupun yang menulikan telinganya saat hidupmu butuh pertolongan. Terima kasih telah menjadi bagian dari proses pendewasaan.</p>
-                    <p class="font-bold text-purple-400 text-xl border-t border-purple-800 pt-4">Selamat merayakan hari lahirmu, berjanjilah untuk hidup dengan baik dan berbahagialah. Terima kasih sudah lahir dan menjadi seseorang yang membawa kebahagiaan.</p>
-                </div>
-
-                <div class="h-24 flex items-center justify-center mt-8">
-                    <button onclick="nextScene()" id="btn-4" class="btn-cosmic px-12 py-5 rounded-full hidden">
-                        Terbang Lebih Jauh
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- SCENE 5: CLOSING -->
-        <section id="scene-5" class="scene">
-            <div class="max-w-4xl mx-auto space-y-12 px-4 fade-up">
+        <!-- SCENE 2: GALAXY HEART -->
+        <section id="scene-2" class="scene flex-col">
+            <div class="max-w-4xl text-center space-y-12">
                 <div class="relative inline-block">
-                    <h1 class="text-6xl md:text-9xl font-black text-white tracking-tighter neon-glow animate-pulse">
-                        SELAMANYA.
-                    </h1>
+                    <div class="absolute inset-0 bg-purple-500 blur-[80px] opacity-30 animate-pulse"></div>
+                    <h2 class="text-5xl md:text-8xl font-black tracking-widest relative z-10 italic">
+                        FENDA ENJELITA
+                    </h2>
                 </div>
-                <p class="text-xl md:text-3xl font-light italic text-purple-200">
-                    Happy Birthday, My Only Universe.
+                <p class="text-xl md:text-3xl font-thin tracking-[0.2em] text-gray-300">
+                    Satu dari sejuta bintang yang paling terang.
                 </p>
-                <div class="flex flex-col items-center space-y-8">
-                    <div class="relative">
-                        <div class="absolute inset-0 bg-pink-500 blur-3xl opacity-30 animate-pulse"></div>
-                        <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-pink-600 to-purple-600 flex items-center justify-center shadow-2xl relative z-10">
-                            <svg class="w-12 h-12 text-white fill-current animate-bounce" viewBox="0 0 24 24">
-                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <button onclick="restartJourney()" class="text-xs uppercase tracking-[0.4em] text-gray-500 hover:text-purple-400 transition-colors">
-                        Mulai Ulang Orbit
-                    </button>
+                <div class="flex justify-center space-x-4 opacity-50">
+                    <div class="w-1 h-1 bg-white rounded-full"></div>
+                    <div class="w-1 h-1 bg-white rounded-full"></div>
+                    <div class="w-1 h-1 bg-white rounded-full"></div>
                 </div>
+                <button onclick="nextScene()" class="btn-portal px-12 py-4 rounded-full">TELUSURI RASI BINTANG</button>
+            </div>
+        </section>
+
+        <!-- SCENE 3: 3D CONSTELLATION -->
+        <section id="scene-3" class="scene flex-col">
+            <div class="absolute top-10 left-0 w-full text-center z-50">
+                <h2 class="text-2xl md:text-4xl font-black tracking-widest text-white neon-glow">RASI BINTANG KENANGAN</h2>
+                <p class="text-sm text-gray-400 mt-2 uppercase tracking-widest">Tahan & Geser untuk Memutar • Klik Bintang untuk Detail</p>
+            </div>
+            
+            <div id="three-container" class="w-full h-full cursor-move"></div>
+
+            <div class="absolute bottom-10 z-50">
+                <button onclick="nextScene()" class="btn-portal px-10 py-4 rounded-full">MASUK KE INTI GALAXY</button>
+            </div>
+        </section>
+
+        <!-- SCENE 4: THE MESSAGE -->
+        <section id="scene-4" class="scene">
+            <div class="max-w-2xl mx-auto p-1 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-[2.5rem] backdrop-blur-3xl border border-white/10">
+                <div class="bg-black/40 p-10 rounded-[2.4rem] space-y-8 text-center">
+                    <h3 class="text-2xl font-black tracking-[0.3em] text-yellow-400 uppercase">Waktu Yang Berharga</h3>
+                    <div class="text-left space-y-4 text-gray-200 text-sm md:text-base leading-relaxed custom-scroll max-h-[45vh] overflow-y-auto pr-4">
+                        <p>Hari ini tuan rumah delapan belas desember kembali mengulang hari. Hari ini, izinkan aku langitkan semua doa terbaikku untuk kamu.</p>
+                        <p>Semoga hal-hal yang membuat kamu runtuh turut menjadi alasan kamu untuk tumbuh. Semoga dunia senantiasa menjaga kamu di mana pun kamu berada. Semoga hari-hari kamu selalu diiringi doa yang tidak pernah ada batasnya. Dan semoga, senyum kedua orang tuamu yang selalu kamu usahakan itu kini sudah terlaksana.</p>
+                        <p>Sebelumnya aku ingin mengucapkan terima kasih. Terima kasih karena pernah tinggal dan membantu pemiliknya untuk menjaga kehangatan rumahnya agar tetap nyaman untuk dihuni. Waktu yang singkat, namun kamu juga adalah peran utama karena sudah ikut andil dalam mewarnai hari-hari yang hanya berwarna hitam dan putih.</p>
+                        <p>Selamat genap menjadi angka 22 di usiamu yang genap hari ini. Sudah banyak hal yang kamu lalui. Semoga selalu dikuatkan bahu pundak serta pikiran untuk setiap batu loncatan, meskipun dengan cara yang tidak pernah kamu pikirkan.</p>
+                        <p>Semoga selalu dimampukan dalam meraih mimpi besar yang ingin kamu tuju. Semoga perjalanan baikmu selalu mendapat kebahagiaan setelahnya. Semoga tidak ada satupun yang menulikan telinganya saat hidupmu butuh pertolongan. Terima kasih telah menjadi bagian dari proses pendewasaan.</p>
+                        <p class="font-bold text-blue-400">Selamat merayakan hari lahirmu, berjanjilah untuk hidup dengan baik dan berbahagialah. Terima kasih sudah lahir dan menjadi seseorang yang membawa kebahagiaan.</p>
+                    </div>
+                    <button onclick="nextScene()" class="btn-portal px-12 py-4 rounded-full mt-6">SAMPAI TUJUAN AKHIR</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 5: FINAL -->
+        <section id="scene-5" class="scene flex-col">
+            <h1 class="text-7xl md:text-9xl font-black italic tracking-tighter mb-4">SELAMANYA.</h1>
+            <p class="text-xl text-gray-400 uppercase tracking-[0.5em]">Happy Birthday, Fenda Enjelita</p>
+            <div class="mt-12">
+                <button onclick="location.reload()" class="text-xs tracking-widest text-gray-500 hover:text-white transition">RESTART ORBIT</button>
             </div>
         </section>
 
     </main>
 
     <!-- Modal Zoom -->
-    <div id="photo-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-500 scale-110">
-        <div class="relative max-w-2xl w-full">
-            <img id="modal-image" src="" class="w-full h-auto rounded-3xl shadow-[0_0_80px_rgba(167,139,250,0.5)] border-4 border-white border-opacity-10">
-            <button onclick="closeModal()" class="absolute -top-16 right-0 text-white text-5xl font-thin hover:text-purple-400 transition">&times;</button>
+    <div id="photo-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-700 bg-black/95">
+        <div class="relative max-w-xl w-full">
+            <img id="modal-image" src="" class="w-full rounded-2xl shadow-2xl">
+            <button onclick="closeModal()" class="absolute -top-16 right-0 text-white text-5xl font-thin">&times;</button>
         </div>
     </div>
 
     <script>
-        const photoFiles = Array.from({length: 10}, (_, i) => `foto${i+1}.jpg`);
-        
-        const photoCoords = [
-            { x: 18, y: 20 }, { x: 50, y: 15 }, { x: 82, y: 25 },
-            { x: 70, y: 50 }, { x: 88, y: 78 }, { x: 55, y: 88 },
-            { x: 22, y: 80 }, { x: 12, y: 55 }, { x: 42, y: 48 },
-            { x: 30, y: 32 }
-        ];
-
-        const lines = [
-            [0,1], [1,2], [2,3], [3,4], [4,5], [5,6], [6,7], [7,0], [1,8], [8,3], [7,9], [9,1]
-        ];
-
+        // --- CORE STATE ---
         let currentScene = 1;
+        let renderer, scene, camera, stars, constellationGroup;
+        let mouseX = 0, mouseY = 0;
+        let targetRotationX = 0, targetRotationY = 0;
 
-        function createStars() {
-            const container = document.getElementById('stars');
-            // Bintang kecil
-            for (let i = 0; i < 200; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                const size = Math.random() * 2 + 1;
-                star.style.width = `${size}px`;
-                star.style.height = `${size}px`;
-                star.style.left = `${Math.random() * 100}%`;
-                star.style.top = `${Math.random() * 100}%`;
-                star.style.setProperty('--duration', `${2 + Math.random() * 4}s`);
-                container.appendChild(star);
+        // --- BACKGROUND THREE.JS (Space Particles) ---
+        function initBg() {
+            const canvas = document.getElementById('bg-canvas');
+            const bgRenderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+            bgRenderer.setSize(window.innerWidth, window.innerHeight);
+            
+            const bgScene = new THREE.Scene();
+            const bgCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+            bgCamera.position.z = 5;
+
+            const starGeo = new THREE.BufferGeometry();
+            const starCoords = [];
+            for(let i=0; i<1500; i++) {
+                starCoords.push(THREE.MathUtils.randFloatSpread(20), THREE.MathUtils.randFloatSpread(20), THREE.MathUtils.randFloatSpread(20));
             }
-            // Shooting stars
-            for (let i = 0; i < 5; i++) {
-                const s = document.createElement('div');
-                s.className = 'shooting-star';
-                s.style.top = `${Math.random() * 50}%`;
-                s.style.right = `${Math.random() * 20}%`;
-                s.style.animationDelay = `${Math.random() * 10}s`;
-                container.appendChild(s);
+            starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
+            const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.02 });
+            const bgStars = new THREE.Points(starGeo, starMat);
+            bgScene.add(bgStars);
+
+            function animateBg() {
+                requestAnimationFrame(animateBg);
+                bgStars.rotation.y += 0.0005;
+                bgRenderer.render(bgScene, bgCamera);
             }
+            animateBg();
+
+            window.addEventListener('resize', () => {
+                bgCamera.aspect = window.innerWidth / window.innerHeight;
+                bgCamera.updateProjectionMatrix();
+                bgRenderer.setSize(window.innerWidth, window.innerHeight);
+            });
         }
 
+        // --- SCENE 3: 3D CONSTELLATION ---
+        function init3DConstellation() {
+            const container = document.getElementById('three-container');
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            constellationGroup = new THREE.Group();
+            scene.add(constellationGroup);
+
+            // Create Star Points
+            const points = [
+                {x: 2, y: 2, z: 0}, {x: 0, y: 3, z: 1}, {x: -2, y: 2, z: -1},
+                {x: -3, y: 0, z: 0}, {x: -2, y: -2, z: 1}, {x: 0, y: -3, z: -1},
+                {x: 2, y: -2, z: 0}, {x: 3, y: 0, z: 1}, {x: 0, y: 0, z: 2},
+                {x: 1, y: 1, z: -2}
+            ];
+
+            // Texture Loader for Photos
+            const loader = new THREE.TextureLoader();
+            
+            points.forEach((p, i) => {
+                // Sphere for star
+                const geo = new THREE.SphereGeometry(0.1, 16, 16);
+                const mat = new THREE.MeshBasicMaterial({ color: 0x9333ea });
+                const star = new THREE.Mesh(geo, mat);
+                star.position.set(p.x, p.y, p.z);
+                constellationGroup.add(star);
+
+                // Sprite for photo (floating plane)
+                const imgUrl = `https://placehold.co/200x200/4c1d95/ffffff?text=Kenangan+${i+1}`;
+                loader.load(imgUrl, (texture) => {
+                    const photoMat = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.8 });
+                    const photoGeo = new THREE.PlaneGeometry(0.8, 0.8);
+                    const photoMesh = new THREE.Mesh(photoGeo, photoMat);
+                    photoMesh.position.set(p.x, p.y + 0.6, p.z);
+                    photoMesh.userData = { id: i, url: imgUrl };
+                    constellationGroup.add(photoMesh);
+                });
+            });
+
+            // Lines
+            const lineMat = new THREE.LineBasicMaterial({ color: 0x581c87, transparent: true, opacity: 0.3 });
+            for(let i=0; i<points.length; i++) {
+                const next = (i + 1) % points.length;
+                const lineGeo = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(points[i].x, points[i].y, points[i].z),
+                    new THREE.Vector3(points[next].x, points[next].y, points[next].z)
+                ]);
+                const line = new THREE.Line(lineGeo, lineMat);
+                constellationGroup.add(line);
+            }
+
+            camera.position.z = 7;
+
+            // Interaction
+            container.addEventListener('mousedown', onMouseDown);
+            container.addEventListener('mousemove', onMouseMove);
+            container.addEventListener('touchstart', (e) => onMouseDown(e.touches[0]));
+            container.addEventListener('touchmove', (e) => onMouseMove(e.touches[0]));
+
+            function onMouseDown(e) {
+                // Raycasting for clicks
+                const raycaster = new THREE.Raycaster();
+                const mouse = new THREE.Vector2();
+                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(constellationGroup.children);
+                if (intersects.length > 0 && intersects[0].object.userData.url) {
+                    openModal(intersects[0].object.userData.url);
+                }
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                constellationGroup.rotation.y += (targetRotationY - constellationGroup.rotation.y) * 0.05;
+                constellationGroup.rotation.x += (targetRotationX - constellationGroup.rotation.x) * 0.05;
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        function onMouseMove(e) {
+            targetRotationY = (e.clientX / window.innerWidth - 0.5) * 4;
+            targetRotationX = (e.clientY / window.innerHeight - 0.5) * 2;
+        }
+
+        // --- SCENE NAVIGATION ---
         function nextScene() {
             const current = document.getElementById(`scene-${currentScene}`);
             current.classList.remove('scene-active');
             
+            // Warp effect on background
+            document.querySelector('.aurora').style.transition = 'opacity 0.5s';
+            document.querySelector('.aurora').style.opacity = '0.5';
+
             currentScene++;
             if (currentScene > 5) currentScene = 1;
 
-            const next = document.getElementById(`scene-${currentScene}`);
-            
             setTimeout(() => {
                 document.querySelectorAll('.scene').forEach(s => s.classList.remove('scene-active'));
+                const next = document.getElementById(`scene-${currentScene}`);
                 next.classList.add('scene-active');
-                
-                // Reset animation
-                next.querySelector('div').classList.remove('fade-up');
-                void next.offsetWidth; // trigger reflow
-                next.querySelector('div').classList.add('fade-up');
+                document.querySelector('.aurora').style.opacity = '0.15';
 
-                if (currentScene === 3) setTimeout(initConstellation, 300);
-                
-                const btn = document.getElementById(`btn-${currentScene}`);
-                if (btn) {
-                    btn.classList.add('hidden');
-                    setTimeout(() => btn.classList.remove('hidden'), 2000);
+                if(currentScene === 3) {
+                    setTimeout(init3DConstellation, 100);
                 }
-            }, 300);
+            }, 800);
         }
 
-        function restartJourney() {
-            location.reload();
-        }
-
-        function initConstellation() {
-            const canvas = document.getElementById('photo-canvas');
-            const svg = document.getElementById('constellation-svg');
-            canvas.querySelectorAll('.photo-node').forEach(n => n.remove());
-            svg.innerHTML = '';
-
-            lines.forEach(pair => {
-                const start = photoCoords[pair[0]];
-                const end = photoCoords[pair[1]];
-                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                line.setAttribute('x1', `${start.x}%`);
-                line.setAttribute('y1', `${start.y}%`);
-                line.setAttribute('x2', `${end.x}%`);
-                line.setAttribute('y2', `${end.y}%`);
-                line.setAttribute('stroke', 'rgba(167, 139, 250, 0.4)');
-                line.setAttribute('stroke-width', '2');
-                line.style.strokeDasharray = "5,5";
-                svg.appendChild(line);
-            });
-
-            photoCoords.forEach((coord, i) => {
-                const node = document.createElement('div');
-                node.className = 'photo-node absolute w-16 h-16 md:w-24 md:h-24 cursor-pointer transform -translate-x-1/2 -translate-y-1/2 hover:scale-110 transition duration-500 z-20';
-                node.style.left = `${coord.x}%`;
-                node.style.top = `${coord.y}%`;
-                node.style.animation = `float ${5 + Math.random() * 3}s infinite ease-in-out`;
-                node.style.animationDelay = `${-Math.random() * 5}s`;
-                
-                const img = document.createElement('img');
-                img.src = `images/${photoFiles[i]}`;
-                img.className = 'w-full h-full object-cover rounded-2xl border-2 border-white border-opacity-20 shadow-xl rotate-[3deg] hover:rotate-0 transition-transform duration-500';
-                img.onerror = function() {
-                    this.src = `https://placehold.co/200x200/4c1d95/ffffff?text=Kenangan+${i+1}`;
-                };
-                
-                node.onclick = () => openModal(img.src);
-                node.appendChild(img);
-                
-                const glow = document.createElement('div');
-                glow.className = 'absolute inset-0 bg-purple-500 rounded-2xl blur-xl opacity-30 -z-10';
-                node.appendChild(glow);
-
-                canvas.appendChild(node);
-            });
-        }
-
+        // --- MODAL ---
         function openModal(src) {
             const modal = document.getElementById('photo-modal');
-            const img = document.getElementById('modal-image');
-            img.src = src;
-            modal.classList.remove('opacity-0', 'pointer-events-none', 'scale-110');
-            modal.classList.add('opacity-100', 'scale-100');
+            document.getElementById('modal-image').src = src;
+            modal.classList.remove('opacity-0', 'pointer-events-none');
         }
 
         function closeModal() {
-            const modal = document.getElementById('photo-modal');
-            modal.classList.add('opacity-0', 'pointer-events-none', 'scale-110');
-            modal.classList.remove('opacity-100', 'scale-100');
+            document.getElementById('photo-modal').classList.add('opacity-0', 'pointer-events-none');
         }
 
-        // Parallax Effect on Mouse Move
-        document.addEventListener('mousemove', (e) => {
-            const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
-            const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
-            document.querySelectorAll('.planet').forEach((p, i) => {
-                const speed = (i + 1) * 2;
-                p.style.transform = `translate(${moveX * speed}px, ${moveY * speed}px)`;
-            });
-        });
-
+        // --- INIT ---
         window.onload = () => {
-            createStars();
+            initBg();
             setTimeout(() => {
-                document.getElementById('btn-1').classList.remove('hidden');
-            }, 3500);
+                document.getElementById('btn-1').classList.remove('opacity-0', 'translate-y-10');
+            }, 500);
         };
     </script>
 </body>
